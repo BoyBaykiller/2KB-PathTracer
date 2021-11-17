@@ -1,7 +1,7 @@
 #version 430 core
 layout(location = 0) out vec4 FragColor;
 
-layout(binding = 0) uniform sampler2D Sampler0;
+layout(binding = 0, rgba32f) restrict readonly uniform image2D ImgResult;
 
 vec3 LinearToInverseGamma(vec3 rgb, float gamma);
 vec3 ACESFilm(vec3 x);
@@ -9,7 +9,7 @@ vec3 ACESFilm(vec3 x);
 in vec2 TexCoord;
 void main()
 {
-    vec3 color = texture(Sampler0, TexCoord).rgb;
+    vec3 color = imageLoad(ImgResult, ivec2(gl_FragCoord.xy)).rgb;
     
     color = ACESFilm(color);
     color = LinearToInverseGamma(color, 2.4);
@@ -18,7 +18,6 @@ void main()
 
 vec3 LinearToInverseGamma(vec3 rgb, float gamma)
 {
-    //rgb = clamp(rgb, 0.0, 1.0);
     return mix(pow(rgb, vec3(1.0 / gamma)) * 1.055 - 0.055, rgb * 12.92, vec3(lessThan(rgb, 0.0031308.xxx)));
 }
  

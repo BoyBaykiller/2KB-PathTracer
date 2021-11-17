@@ -1,10 +1,6 @@
 #ifndef __wgl_wglext_h_
 #define __wgl_wglext_h_ 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
 ** Copyright 2013-2020 The Khronos Group Inc.
 ** SPDX-License-Identifier: MIT
@@ -21,15 +17,6 @@ extern "C" {
 #endif
 
 #define WGL_WGLEXT_VERSION 20200813
-
-/* Generated C header for:
- * API: wgl
- * Versions considered: .*
- * Versions emitted: _nomatch_^
- * Default extensions included: wgl
- * Additional extensions included: _nomatch_^
- * Extensions removed: _nomatch_^
- */
 
 #ifndef WGL_ARB_buffer_region
 #define WGL_ARB_buffer_region 1
@@ -837,9 +824,5 @@ BOOL WINAPI wglWaitForMscOML (HDC hdc, INT64 target_msc, INT64 divisor, INT64 re
 BOOL WINAPI wglWaitForSbcOML (HDC hdc, INT64 target_sbc, INT64 *ust, INT64 *msc, INT64 *sbc);
 #endif
 #endif /* WGL_OML_sync_control */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

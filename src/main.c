@@ -88,7 +88,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     windowClass.lpfnWndProc = WindowProcedure;
     RegisterClass(&windowClass);
 
-
     HWND fakeWND = CreateWindow(windowClass.lpszClassName, "Fake Window", WS_DISABLED | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 1, 1, NULL, NULL, hInstance, NULL);
     HDC fakeDC = GetDC(fakeWND);
 
@@ -110,12 +109,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 
-    // RECT wr = {0, 0, 832, 832};
-    // AdjustWindowRect(&wr, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, FALSE);
-    // wr.right - wr.left, wr.bottom - wr.top
-    const int width = 832;
-    const int height = 832;
-    HWND WND = CreateWindow(windowClass.lpszClassName, "OpenGL Window", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, 400, 400, width + 2, height + 25, NULL, NULL, hInstance, NULL);
+    const int width = 1024;
+    const int height = 1024;
+    HWND WND = CreateWindow(windowClass.lpszClassName, "OpenGL Window", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, 400, 000, width + 2, height + 25, NULL, NULL, hInstance, NULL);
     HDC DC = GetDC(WND);
 
     const int pixelAttribs[] =
@@ -147,8 +143,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     {
         WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
         WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
-        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, /*WGL_CONTEXT_CORE_PROFILE_BIT_ARB,*/
-        //		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
         0
     };
 
@@ -161,12 +156,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     wglMakeCurrent(DC, RC);
     ShowWindow(WND, nCmdShow);
-
-    PFNGLGETERRORPROC glGetError = GetAnyGLFuncAddress("glGetError");
-    
-    PFNGLGETSTRINGPROC glGetString = GetAnyGLFuncAddress("glGetString");
-    printf("GL: %s\n", glGetString(GL_VERSION));
-    printf("GPU: %s\n", glGetString(GL_RENDERER));
 
     PFNGLCLEARPROC glClear = GetAnyGLFuncAddress("glClear");
 
@@ -190,7 +179,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     PFNGLCREATETEXTURESPROC glCreateTextures = GetAnyGLFuncAddress("glCreateTextures");
     PFNGLTEXTURESTORAGE2DPROC glTextureStorage2D = GetAnyGLFuncAddress("glTextureStorage2D");
-    PFNGLBINDTEXTUREUNITPROC glBindTextureUnit = GetAnyGLFuncAddress("glBindTextureUnit");
     PFNGLBINDIMAGETEXTUREPROC glBindImageTexture = GetAnyGLFuncAddress("glBindImageTexture");
 
     PFNGLDRAWARRAYSPROC glDrawArrays = GetAnyGLFuncAddress("glDrawArrays");
@@ -199,11 +187,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     unsigned int finalProgram; 
     {
-        const char* vertSource = FileReadAllText("../src/shaders/screenQuad.glsl");
-        unsigned int vertexShader = LoadShader(GL_VERTEX_SHADER, vertSource);
-
-        const char* fragSource = FileReadAllText("../src/shaders/final.glsl");
-        unsigned int fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragSource);
+        unsigned int vertexShader = LoadShader(GL_VERTEX_SHADER, FileReadAllText("../src/shaders/screenQuad.glsl"));
+        unsigned int fragmentShader = LoadShader(GL_FRAGMENT_SHADER, FileReadAllText("../src/shaders/final.glsl"));
 
         finalProgram = glCreateProgram();
         glAttachShader(finalProgram, vertexShader);
@@ -213,8 +198,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     unsigned int computeProgram;
     {
-        const char* computeSource = FileReadAllText("../src/shaders/pathTracing/pathtracer.glsl");
-        unsigned int computeShader = LoadShader(GL_COMPUTE_SHADER, computeSource);
+        unsigned int computeShader = LoadShader(GL_COMPUTE_SHADER, FileReadAllText("../src/shaders/pathTracing/pathtracer.glsl"));
 
         computeProgram = glCreateProgram();
         glAttachShader(computeProgram, computeShader);
@@ -225,7 +209,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &computeResult);
         glTextureStorage2D(computeResult, 1, GL_RGBA32F, width, height);
-        glBindImageTexture(0u, computeResult, 0, FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     }
 
     unsigned int basicDataUBO;
@@ -268,13 +251,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             DispatchMessage(&msg);
         }
         glUseProgram(computeProgram);
+        glBindImageTexture(0u, computeResult, 0, FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         glNamedBufferSubData(basicDataUBO, sizeof(float) * 4 * 4 * 2 + sizeof(float) * 3, sizeof(int), &renderedFrame);
         renderedFrame++;
         glDispatchCompute((width * height + 32 - 1) / 32, 1, 1);
 
         glClear(GL_COLOR_BUFFER_BIT);
+        glBindImageTexture(0u, computeResult, 0, FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
         glUseProgram(finalProgram);
-        glBindTextureUnit(0, computeResult);
         glDrawArrays(GL_QUADS, 0, 4);
 
         SwapBuffers(DC);
@@ -283,9 +267,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     // wglMakeCurrent(NULL, NULL);
     // ReleaseDC(WND, DC);
     // DestroyWindow(WND);
-    // __asm {
-    // mov     eax, 0 // interrupt code
-    // mov     ebx, 0 // argument, in this case: return value
-    // int     0x80
-    // }
 }

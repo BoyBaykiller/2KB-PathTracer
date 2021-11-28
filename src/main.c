@@ -157,8 +157,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wglMakeCurrent(DC, RC);
     ShowWindow(WND, nCmdShow);
 
-    PFNGLCLEARPROC glClear = GetAnyGLFuncAddress("glClear");
-
     PFNGLCREATEBUFFERSPROC glCreateBuffers = GetAnyGLFuncAddress("glCreateBuffers");
     PFNGLNAMEDBUFFERSTORAGEPROC glNamedBufferStorage = GetAnyGLFuncAddress("glNamedBufferStorage");
     PFNGLNAMEDBUFFERSUBDATAPROC glNamedBufferSubData = GetAnyGLFuncAddress("glNamedBufferSubData");
@@ -256,15 +254,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         renderedFrame++;
         glDispatchCompute((width * height + 32 - 1) / 32, 1, 1);
 
-        glClear(GL_COLOR_BUFFER_BIT);
         glBindImageTexture(0u, computeResult, 0, FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
         glUseProgram(finalProgram);
         glDrawArrays(GL_QUADS, 0, 4);
 
         SwapBuffers(DC);
     }
-    // END:
-    // wglMakeCurrent(NULL, NULL);
-    // ReleaseDC(WND, DC);
-    // DestroyWindow(WND);
 }

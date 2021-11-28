@@ -11,7 +11,7 @@ if "%CSourceFiles%" == "" (
 
 cd ../build
 
-set CMD=gcc -c -m32 -std=c11 -O2 -Os -fno-exceptions -fomit-frame-pointer -fno-inline-small-functions %CSourceFiles%
+set CMD=gcc -Wall -c -m32 -std=c11 -O2 -Os -fno-exceptions -fomit-frame-pointer -fno-inline-small-functions %CSourceFiles%
 
 echo %CMD%
 %CMD%

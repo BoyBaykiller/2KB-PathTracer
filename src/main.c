@@ -132,7 +132,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     int pixelFormatID;
     UINT numFormats;
-    BOOL status = wglChoosePixelFormatARB(DC, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
+    wglChoosePixelFormatARB(DC, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
 
     PIXELFORMATDESCRIPTOR PFD = {0};
     DescribePixelFormat(DC, pixelFormatID, sizeof(PFD), &PFD);

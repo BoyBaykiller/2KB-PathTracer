@@ -23,7 +23,7 @@ def buildToExe():
     oFiles = [f for f in os.listdir("../build") if f.endswith(".o")]
     oFilesStr = " ".join("../build/{}".format(*oF) for oF in zip(oFiles))
     
-    result = subprocess.run(["linker.bat", oFilesStr])
+    subprocess.run(["linker.bat", oFilesStr])
     os.chdir("..")
 
     return True

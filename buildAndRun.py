@@ -12,15 +12,19 @@ def buildToExe():
     cFilesStr = " ".join("../src/{}".format(*cF) for cF in zip(cFiles))
 
     os.chdir("scripts")
-    subprocess.call(['compiler.bat', cFilesStr])
+
+    result = subprocess.run(['compiler.bat', cFilesStr], capture_output=True, text=True)
+    print(result.stdout)
+    if result.stderr != "":
+        print(result.stderr)
+        return False
 
     # Linking
     oFiles = [f for f in os.listdir("../build") if f.endswith(".o")]
-    if len(oFiles) is not len(cFiles):
-        return False
-    
     oFilesStr = " ".join("../build/{}".format(*oF) for oF in zip(oFiles))
-    subprocess.call(["linker.bat", oFilesStr])
+    
+    result = subprocess.run(["linker.bat", oFilesStr], capture_output=True, text=True)
+    print(result.stdout)
     os.chdir("..")
 
     return True
@@ -28,20 +32,17 @@ def buildToExe():
 def main():
     start = time.time()
     
-    os.system("taskkill /f /im 2KB-PathTracer.exe");
-    
     if not os.path.isdir("build"):
         os.mkdir("build")
 
     if not buildToExe():
-        print("Build failed")
         return
     
-    print("Build finshed in {}sec".format(round(time.time() - start, 3)))
+    print(f"Build finshed in {round(time.time() - start, 3)}sec")
     print("Note that linking erros are not being catched")
 
     os.chdir("build")
-    os.system("start 2KB-PathTracer.exe")
+    os.startfile("2KB-PathTracer")
 
 if __name__ == "__main__":
     main()
